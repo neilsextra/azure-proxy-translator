@@ -1,0 +1,126 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="/modules/jquery/dist/jquery.min.js"></script>
+  <style type="text/css" media="screen">
+  </style>
+</head>
+
+<body>
+
+  <div style="border: 1px solid rgba(0,0,0,0.2); position:absolute; top:10px; bottom:18px; left:10px; padding-top:4px; padding-bottom:10px; padding-left:4px; padding-right:2px; width:40px;"> 
+    <a id="english" class="languages" style="position:absolute; cursor: pointer; padding:6px; top:4px; width:24px; height:24px; background-color: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.1);">
+        <img src='/images/english.svg' style="width:24px; height:24px"></img>
+    </a>    
+    <p>&nbsp;</p>  
+    <a id="french" class="languages" style="position:absolute; cursor: pointer;  padding:6px; top:42px; width:24; height:24px; background-color: rgba(255,255,255,1.0); border: 1px solid rgba(255,255,255,1.0);">
+        <img src='/images/france.svg' style="width:24px; height:24px;"></img>
+    </a>      
+    <p>&nbsp;</p>
+    <a id="spanish" class="languages" style="position:absolute; cursor: pointer; padding:6px; top:80px; width:24; height:24px; background-color: rgba(255,255,255,1.0); border: 1px solid rgba(255,255,255,1.0);">
+        <img src='/images/spain.svg' style="width:24px; height:24px;"></img>
+    </a>
+    <a id="german" class="languages" style="position:absolute; cursor: pointer; padding:6px; top:118px; width:24; height:24px; background-color: rgba(255,255,255,1.0); border: 1px solid rgba(255,255,255,1.0);">
+        <img src='/images/germany.svg' style="width:24px; height:24px;"></img>
+    </a>
+    </div>
+    <div style="border: 1px solid rgba(0,0,0,0.1); position:absolute; top:10px; left:68px; right:10px; bottom:20px; overflow:none;"> 
+        <iframe id="website", src="/en" style="width:100%; height:100%;"></iframe>
+        <div id="loadingMessage" style="position:absolute; top:20px; left:58px; right:20px; bottom:20px; vertical-align:middle; padding-top:80px;">
+            <img src="/images/ajax-loader.gif" style="margin:auto; top:40px; width:64px; display:block" /> 
+        </div>
+    </div>
+</body>
+
+<script>
+
+    function setLanguange(language) {
+        $('#loadingMessage').css('display', 'inline-block');
+        $('#website').attr('src', 'javascript:void(0);');
+
+        $('#website').attr('src', `/${language}`);
+
+        $('#website').ready(function() {
+
+            window.setInterval(function () {
+                $('#loadingMessage').css('display', 'none');
+                $('#website').css('display', 'inline-block');
+            }, 10000);
+        
+        });
+    }
+
+    $(document).ready(() => {
+        
+        setLanguange('en');
+
+        $('#english').on('click', (e) => {
+            $( ".languages" ).css({
+                "border-color": "rgba(255,255,255,1.0)",
+                "background-color": "rgba(255,255,255,1.0)"
+            });
+
+            $('#english').css({
+                "border-color": "rgba(0,0,0,0.1)",
+                "background-color": "rgba(0,0,0,0.1)"
+            });
+
+        });
+        
+        $('#french').on('click', (e) => {
+
+            setLanguange('fr');
+           
+            $( ".languages" ).css({
+                "border-color": "rgba(255,255,255,1.0)",
+                "background-color": "rgba(255,255,255,1.0)"
+            });
+
+            $('#french').css({
+                "border-color": "rgba(0,0,0,0.1)",
+                "background-color": "rgba(0,0,0,0.1)"
+            });
+
+        });
+        
+        $('#german').on('click', (e) => {
+ 
+            setLanguange('de');
+           
+           $( ".languages" ).css({
+                "border-color": "rgba(255,255,255,1.0)",
+                "background-color": "rgba(255,255,255,1.0)"
+            });
+
+            $('#german').css({
+                "border-color": "rgba(0,0,0,0.1)",
+                "background-color": "rgba(0,0,0,0.1)"
+            });
+
+        });
+        
+        $('#spanish').on('click', (e) => {
+
+            setLanguange('es');
+           
+           $( ".languages" ).css({
+                "border-color": "rgba(255,255,255,1.0)",
+                "background-color": "rgba(255,255,255,1.0)"
+            });
+
+            $('#spanish').css({
+                "border-color": "rgba(0,0,0,0.1)",
+                "background-color": "rgba(0,0,0,0.1)"
+            });
+
+        });
+
+        return false;
+
+    });
+
+</script>
+
+</html>
