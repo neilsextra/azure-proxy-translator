@@ -6,13 +6,15 @@
  * 
  */
 
-var express = require('express');
-var http = require('http');
-var path = require('path');
-var request = require('request');
-var url = require('url');
+const express = require('express');
+const http = require('http');
+const path = require('path');
+const request = require('request');
+const url = require('url');
 const jsdom = require("jsdom");
+const zlib = require('zlib');
 const translation = require('./translation');
+var Buffer = require('buffer').Buffer;
 const { JSDOM } = jsdom;
 
 var app = express();
@@ -67,7 +69,7 @@ try {
 var cognitiveKey =  process.env.KEY || keys.cognitiveKey;
 var translationUrl =  process.env.TRANSLATION_URL || config.translationUrl;
 var cognitiveRegion =  process.env.COGNITIVE_REGION || config.cognitiveRegion;
-var originalLanguage =  process.env.ORIGINAL_LANGUAGE || keys.originalLanguage;
+var originalLanguage =  process.env.ORIGINAL_LANGUAGE || config.originalLanguage;
 
 /**
  * It all starts here ...
@@ -76,53 +78,33 @@ app.get('/', function(req, res, next) {
   res.sendFile('index.html', {
     root: path.join(__dirname, 'public','views')
   });
+
+});
+
+app.get('/sv-SE', function(req, res, next) {
+  processRequest(req, res);
+});
+
+app.get('/zh-Hans', function(req, res, next) {
+  processRequest(req, res);
 });
 
 app.get('/([a-z]{2})', function(req, res, next) {
-  var language = req.url.replace("/", "");
+  processRequest(req, res);
+});
 
-  logMessage('Language: ' + language);
-  logMessage('Retreving URL: ' + translationUrl);
-
-  var translator = new translation(cognitiveRegion, cognitiveKey);
-
-    request({uri: translationUrl}, function(err, response, body) {
-
-    if (err) {
-      res.end(err);
-    }
-
-    if (err && response.statusCode !== 200) {
-      console.log('Request error');
-      res.end(err);
-      return;
-    }
+app.get('/*', function(req, res, next) {
     
-    if (language == originalLanguage) {
-      res.end(body);
-      return;
-    }
-
-    translatePage(translator, language, body).then(function(result) {
-      res.end(result);
-    });
-
+  request({uri: `${translationUrl}${req.url}`}, function(err, response, body) {
+    processResponse(req, res, body);
   });
 
-  app.get('/*', function(req, res, next) {
-     
-    request({uri: `${translationUrl}${req.url}`}, function(err, response, body) {
-      processResponse(req, res, body);
-    });
+});
 
+app.post('/*', function(req, res, next) {
+  request({uri: `${translationUrl}${req.url}`}, function(err, response, body) {
+    processResponse(req, res, body);
   });
-
-  app.post('/*', function(req, res, next) {
-    request({uri: `${translationUrl}${req.url}`}, function(err, response, body) {
-      processResponse(req, res, body);
-    });
-  });
-
 });
 
 http.createServer(app).listen(app.get('port'), function() {
@@ -138,17 +120,27 @@ function processResponse(req, res, body) {
     if (err) {
       console.log(err);
       res.statusCode(500).end(err);
+      return;
     }
+  //  console.log(`Pathname: ${parsedUrl.pathname}`);
 
     if (parsedUrl.pathname.includes('.png')) {
        res.writeHead(200, {'Content-Type': 'image/png' });
-      res.end(body, 'binary');
+       res.end(body, 'binary');
     } if (parsedUrl.pathname.includes('.gif')) {
-      res.writeHead(200, {'Content-Type': 'image/gif' });
-      res.end(body, 'binary');
-    } if (parsedUrl.pathname.includes('.jpeg')) {
-      res.writeHead(200, {'Content-Type': 'image/jpeg' });
-      res.end(body, 'binary');
+        res.writeHead(200, {'Content-Type': 'image/gif' });
+        res.end(body, 'binary');
+      } if (parsedUrl.pathname.includes('.jpeg')) {
+        res.writeHead(200, {'Content-Type': 'image/jpeg' });
+        res.end(body, 'binary');
+    } if (parsedUrl.pathname.includes('.axd')) {
+        console.log('Path: ' + parsedUrl.pathname);
+        var input = new Buffer(body);
+        zlib.gunzip(input, function (error, result) {
+          res.writeHead(200, {'Content-Type': 'text/javascript' });
+          res.end(result);
+          
+        });
     } else {
       res.end(body);
     }
@@ -157,22 +149,75 @@ function processResponse(req, res, body) {
   
 }
 
+function processRequest(req, res) {
+  var language = req.url.replace("/", "");
+
+  logMessage(`Language: ${language}`);
+  logMessage(`Retreving URL: ${translationUrl}`);
+
+  var translator = new translation(cognitiveRegion, cognitiveKey);
+
+  request({uri: translationUrl}, function(err, response, body) {
+
+      if (err) {
+        res.end(err);
+        return;
+      }
+
+      if (err && response.statusCode !== 200) {
+        console.log('Request error');
+        res.end(err);
+        return;
+      }
+      
+      console.log(`Languages: ${language}:${originalLanguage}`)
+      if (language == originalLanguage) {
+        res.end(body);
+        return;
+      }
+
+      translatePage(translator, language, body).then(function(result) {
+        res.end(result);
+      });
+
+    });
+
+}
+
 async function translatePage(translator, language, body) {
   const dom = new JSDOM(body, {});
 
   var paragraphs = dom.window.document.querySelectorAll("p");
 
   for (var p in paragraphs) {
-    console.log(paragraphs[p].innerHTML);
     
     if (paragraphs[p].innerHTML) {
       var result = await translateText(translator, language, paragraphs[p].innerHTML);
-      console.log(JSON.stringify(result));
-
+ 
       paragraphs[p].innerHTML = result.body[0].translations[0].text;
 
     }
 
+  }
+  
+  var anchors = dom.window.document.querySelectorAll("a");
+  
+  var counter = 30;
+
+  for (var a in anchors) {
+
+        if (counter == 0) {
+            break;
+        }
+
+        if (anchors[a].textContent) {
+            var result = await translateText(translator, language, anchors[a].textContent);
+
+            anchors[a].textContent = result.body[0].translations[0].text;
+
+        }
+
+       counter -= 1;
   }
 
   return dom.window.document.documentElement.outerHTML;
@@ -181,7 +226,7 @@ async function translatePage(translator, language, body) {
 
 function translateText(translator, language, text) {
   return new Promise(resolve => {
-    translator.translate(language,text).then(function(result) {
+    translator.translate(language, text).then(function(result) {
       resolve(result);
     });  
   });

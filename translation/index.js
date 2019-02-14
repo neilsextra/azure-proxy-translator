@@ -44,5 +44,72 @@ translation.prototype.translate = function(language, text) {
     return _Request.postAsync(options);
 
 };
+translation.prototype.translate = function(language, text) {
+  var params = {};
+
+  let options = {
+      method: 'POST',
+      baseUrl: BASE_URL,
+      url: 'translate',
+
+      qs: {
+        'api-version': '3.0',
+        'to': language,
+        'textType': 'html'
+      },
+
+      headers: {
+
+        'Ocp-Apim-Subscription-Key': this.apiKey,
+        "Ocp-Apim-Subscription-Region": this.region,
+        'Content-type': 'application/json',
+        'X-ClientTraceId': _uuid().toString()
+
+      },
+      body: [{
+            'text': text
+      }],
+
+      json: true,
+      
+  };
+
+  return _Request.postAsync(options);
+
+};
+
+translation.prototype.translateSentences = function(language, sentences) {
+    var params = {};
+
+    let options = {
+        method: 'POST',
+        baseUrl: BASE_URL,
+        url: 'translate',
+
+        qs: {
+          'api-version': '3.0',
+          'to': language,
+          'textType': 'html'
+        },
+
+        headers: {
+
+          'Ocp-Apim-Subscription-Key': this.apiKey,
+          "Ocp-Apim-Subscription-Region": this.region,
+          'Content-type': 'application/json',
+          'X-ClientTraceId': _uuid().toString()
+
+        },
+        body: [{
+              'text': text
+        }],
+
+        json: true,
+        
+    };
+
+    return _Request.postAsync(options);
+
+};
 
 module.exports = translation;
