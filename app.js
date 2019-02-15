@@ -165,7 +165,7 @@ function processRequest(req, res) {
       }
 
       if (err && response.statusCode !== 200) {
-        console.log('Request error');
+        console.log(`Request error: ${err}`);
         res.end(err);
         return;
       }
@@ -185,42 +185,45 @@ function processRequest(req, res) {
 }
 
 async function translatePage(translator, language, body) {
-  const dom = new JSDOM(body, {});
+    const dom = new JSDOM(body, {});
 
-  var paragraphs = dom.window.document.querySelectorAll("p");
-
-  for (var p in paragraphs) {
+    var paragraphs = dom.window.document.querySelectorAll("p");
+        
+    for (var p in paragraphs) {
+        
+        if (paragraphs[p].innerHTML) {
+        var result = await translateText(translator, language, paragraphs[p].innerHTML);
     
-    if (paragraphs[p].innerHTML) {
-      var result = await translateText(translator, language, paragraphs[p].innerHTML);
- 
-      paragraphs[p].innerHTML = result.body[0].translations[0].text;
+        paragraphs[p].innerHTML = result.body[0].translations[0].text;
+
+        }
 
     }
-
-  }
   
-  var anchors = dom.window.document.querySelectorAll("a");
-  
-  var counter = 30;
+    var anchors = dom.window.document.querySelectorAll("a");
+    
+    var counter = 1;
 
-  for (var a in anchors) {
+    var sentences = {};
 
-        if (counter == 0) {
-            break;
-        }
+    for (var a in anchors) {
 
-        if (anchors[a].textContent) {
-            var result = await translateText(translator, language, anchors[a].textContent);
+            if (counter == 0) {
+                break;
+            }
 
-            anchors[a].textContent = result.body[0].translations[0].text;
+            if (anchors[a].textContent) {
 
-        }
+                if (sentences)
+                var result = await translateText(translator, language, anchors[a].textContent);
+                anchors[a].textContent = result.body[0].translations[0].text;
 
-       counter -= 1;
-  }
+            }
 
-  return dom.window.document.documentElement.outerHTML;
+        counter -= 1;
+    }
+
+    return dom.window.document.documentElement.outerHTML;
 
 }
 
@@ -230,5 +233,4 @@ function translateText(translator, language, text) {
       resolve(result);
     });  
   });
-
 }

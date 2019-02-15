@@ -22,44 +22,56 @@
     <a id="spanish" class="languages" style="position:absolute; cursor: pointer; padding:6px; top:80px; width:24; height:24px; background-color: rgba(255,255,255,1.0); border: 1px solid rgba(255,255,255,1.0);">
         <img src='/images/spain.svg' style="width:24px; height:24px;"></img>
     </a>
+    <p>&nbsp;</p>  
     <a id="german" class="languages" style="position:absolute; cursor: pointer; padding:6px; top:118px; width:24; height:24px; background-color: rgba(255,255,255,1.0); border: 1px solid rgba(255,255,255,1.0);">
         <img src='/images/germany.svg' style="width:24px; height:24px;"></img>
     </a>
+    <p>&nbsp;</p>  
     <a id="chinese" class="languages" style="position:absolute; cursor: pointer; padding:6px; top:156px; width:24; height:24px; background-color: rgba(255,255,255,1.0); border: 1px solid rgba(255,255,255,1.0);">
         <img src='/images/china.svg' style="width:24px; height:24px;"></img>
     </a>
+    <p>&nbsp;</p>  
     <a id="swedish" class="languages" style="position:absolute; cursor: pointer; padding:6px; top:194px; width:24; height:24px; background-color: rgba(255,255,255,1.0); border: 1px solid rgba(255,255,255,1.0);">
         <img src='/images/sweden.svg' style="width:24px; height:24px;"></img>
     </a>
     </div>
     <div style="border: 1px solid rgba(0,0,0,0.1); position:absolute; top:10px; left:68px; right:10px; bottom:20px; overflow:none;"> 
-        <iframe id="website", src="/en" style="width:100%; height:100%;"></iframe>
-        <div id="loadingMessage" style="position:absolute; top:20px; left:58px; right:20px; bottom:20px; vertical-align:middle; padding-top:80px;">
+        <iframe id="website", src="javascript:void(0)" style="width:100%; height:100%; display: inline-block"></iframe>
+        <div id="loadingMessage" style="position:absolute; top:20px; left:58px; right:20px; bottom:20px; vertical-align:middle; padding-top:80px; display:none;">
             <img id="loader" src="/images/ajax-loader.gif" style="margin:auto; margin-top:0px; width:64px; display:block" /> 
         </div>
     </div>
 </body>
 
 <script>
-
-    function setLanguange(language, interval) {
-        $('#loadingMessage').css('display', 'inline-block');
-        $("#website").contents().find("body").html('');
-        $('#website').attr('src', `/${language}`);
-
-        $('#website').ready(function() {
-
-            window.setInterval(function () {
-                $('#loadingMessage').css('display', 'none');
-                $('#website').css('display', 'inline-block');
-            }, 10000);
-        
+    function ready(callback) {
+        // in case the document is already rendered
+        if (document.readyState!='loading') callback();
+        // modern browsers
+        else if (document.addEventListener) document.addEventListener('DOMContentLoaded', callback);
+        // IE <= 8
+        else document.attachEvent('onreadystatechange', function(){
+            if (document.readyState=='complete') callback();
         });
     }
 
-    $(document).ready(() => {
+    function setLanguange(language) {
+         $('#loadingMessage').css('display', 'inline-block');
+
+        $("#website").contents().find("body").html('');
+        $('#website').attr('src', `/${language}`);
+         
+    }
+
+    ready(function(event) { 
         
-        setLanguange('en', 5000);
+        document.getElementById('website').onload = function() {
+            $('#loadingMessage').css('display', 'none');
+            $('#website').css('display', 'inline-block');
+        
+        }   
+
+        setLanguange('en');
 
         var h = window.innerHeight;
 
@@ -72,9 +84,9 @@
 
         });
 
-        $('#english').on('click', (e) => {
-
-            setLanguange('en', 5000);
+        document.getElementById('english').onclick = function() {
+    
+            setLanguange('en');
  
             $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -86,11 +98,11 @@
                 "background-color": "rgba(0,0,0,0.1)"
             });
 
-        });
+        };
         
-        $('#french').on('click', (e) => {
+        document.getElementById('french').onclick = function() {
 
-            setLanguange('fr', 10000);
+            setLanguange('fr');
            
             $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -102,11 +114,11 @@
                 "background-color": "rgba(0,0,0,0.1)"
             });
 
-        });
+        };
         
-        $('#german').on('click', (e) => {
+        document.getElementById('german').onclick = function() {
  
-            setLanguange('de', 10000);
+            setLanguange('de');
            
            $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -118,11 +130,11 @@
                 "background-color": "rgba(0,0,0,0.1)"
             });
 
-        });
+        };
         
-        $('#spanish').on('click', (e) => {
-
-            setLanguange('es', 10000);
+        document.getElementById('spanish').onclick = function() {
+ 
+            setLanguange('es');
            
            $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -134,11 +146,11 @@
                 "background-color": "rgba(0,0,0,0.1)"
             });
 
-        });
+        };
 
-        $('#chinese').on('click', (e) => {
+        document.getElementById('chinese').onclick = function() {
 
-            setLanguange('zh-Hans', 10000);
+            setLanguange('zh-Hans');
            
            $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -150,11 +162,11 @@
                 "background-color": "rgba(0,0,0,0.1)"
             });
 
-        });
+        };
  
-        $('#swedish').on('click', (e) => {
+        document.getElementById('swedish').onclick = function() {
 
-            setLanguange('sv-SE', 10000);
+            setLanguange('sv-SE');
 
             $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -166,7 +178,7 @@
                 "background-color": "rgba(0,0,0,0.1)"
             });
 
-        });
+        };
 
         return false;
 
