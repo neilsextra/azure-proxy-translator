@@ -55,7 +55,7 @@
         });
     }
 
-    function setLanguange(language) {
+    function setLanguage(language) {
          $('#loadingMessage').css('display', 'inline-block');
 
         $("#website").contents().find("body").html('');
@@ -71,7 +71,7 @@
         
         }   
 
-        setLanguange('en');
+        setLanguage('en');
 
         var h = window.innerHeight;
 
@@ -86,7 +86,7 @@
 
         document.getElementById('english').onclick = function() {
     
-            setLanguange('en');
+            setLanguage('en');
  
             $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -102,7 +102,7 @@
         
         document.getElementById('french').onclick = function() {
 
-            setLanguange('fr');
+            setLanguage('fr');
            
             $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -118,7 +118,7 @@
         
         document.getElementById('german').onclick = function() {
  
-            setLanguange('de');
+            setLanguage('de');
            
            $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -134,7 +134,7 @@
         
         document.getElementById('spanish').onclick = function() {
  
-            setLanguange('es');
+            setLanguage('es');
            
            $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -150,7 +150,7 @@
 
         document.getElementById('chinese').onclick = function() {
 
-            setLanguange('zh-Hans');
+            setLanguage('zh-Hans');
            
            $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
@@ -166,7 +166,7 @@
  
         document.getElementById('swedish').onclick = function() {
 
-            setLanguange('sv-SE');
+            setLanguage('sv-SE');
 
             $( ".languages" ).css({
                 "border-color": "rgba(255,255,255,1.0)",
