@@ -170,7 +170,7 @@ function processRequest(req, res) {
         return;
       }
       
-      console.log(`Languages: ${language}:${originalLanguage}`)
+      console.log(`Language: ${originalLanguage} -> ${language}`)
       if (language == originalLanguage) {
         res.end(body);
         return;
@@ -185,51 +185,98 @@ function processRequest(req, res) {
 }
 
 async function translatePage(translator, language, body) {
-    const dom = new JSDOM(body, {});
+  const dom = new JSDOM(body, {});
 
-    var paragraphs = dom.window.document.querySelectorAll("p");
+  var paragraphs = dom.window.document.querySelectorAll("p");
+      
+  for (var p in paragraphs) {
+      
+      if (paragraphs[p].innerHTML) {
+      var result = await translateText(translator, language, paragraphs[p].innerHTML);
+  
+      paragraphs[p].innerHTML = result.body[0].translations[0].text;
+
+      }
+
+  }
+
+  var anchors = dom.window.document.querySelectorAll("a");
+  
+  var lines = [];
+
+  for (var a in anchors) {
+
+    if (anchors[a].textContent) {
+      lines.push(anchors[a].textContent); 
+    }
+
+  }
+  
+  var translations = [];
+  var candidates = [];
+   
+  for (var line in lines) {
+    candidates.push(lines[line]);
+
+    if (line % 99 == 0 && line != 0) {
+      var result = await translateBody(translator, language, candidates);
+      
+      for (var r in result.body) {
+        var translation = result.body[r].translations[0].text;
+
+        translations.push(translation);
+      
+      }
+
+      console.log('Translation Size: ' + translations.length);
+      candidates = [];
+ 
+    }
+
+  }
+
+  console.log('Candidate Size: ' + candidates.length);
+
+  if (candidates.length != 0) {
+    var result = await translateBody(translator, language, candidates);
         
-    for (var p in paragraphs) {
-        
-        if (paragraphs[p].innerHTML) {
-        var result = await translateText(translator, language, paragraphs[p].innerHTML);
+    for (var r in result.body) {
+      var translation = result.body[r].translations[0].text;
+
+      translations.push(translation);
     
-        paragraphs[p].innerHTML = result.body[0].translations[0].text;
-
-        }
-
     }
   
-    var anchors = dom.window.document.querySelectorAll("a");
+  }
+
+  var translation = 0;
+
+  for (var a in anchors) {
     
-    var counter = 1;
+    if (anchors[a].textContent) {
+      anchors[a].textContent = translations[translation];
 
-    var sentences = {};
-
-    for (var a in anchors) {
-
-            if (counter == 0) {
-                break;
-            }
-
-            if (anchors[a].textContent) {
-
-                if (sentences)
-                var result = await translateText(translator, language, anchors[a].textContent);
-                anchors[a].textContent = result.body[0].translations[0].text;
-
-            }
-
-        counter -= 1;
+      translation += 1;
+      
     }
+    
+  }
 
-    return dom.window.document.documentElement.outerHTML;
+  return dom.window.document.documentElement.outerHTML;
 
 }
 
 function translateText(translator, language, text) {
   return new Promise(resolve => {
-    translator.translate(language, text).then(function(result) {
+    translator.translateText(language, text).then(function(result) {
+      resolve(result);
+    });  
+  });
+}
+
+function translateBody(translator, language, body) {
+  return new Promise(resolve => {
+    translator.translateBody(language, body).then(function(result) {
       resolve(result);
     });  
   });

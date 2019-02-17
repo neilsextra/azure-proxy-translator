@@ -44,8 +44,8 @@ translation.prototype.translate = function(language, text) {
     return _Request.postAsync(options);
 
 };
-translation.prototype.translate = function(language, text) {
-  var params = {};
+
+translation.prototype.translateText = function(language, text) {
 
   let options = {
       method: 'POST',
@@ -67,7 +67,7 @@ translation.prototype.translate = function(language, text) {
 
       },
       body: [{
-            'text': text
+            'text': text,
       }],
 
       json: true,
@@ -75,6 +75,47 @@ translation.prototype.translate = function(language, text) {
   };
 
   return _Request.postAsync(options);
+
+};
+
+translation.prototype.translateBody = function(language, texts) {
+  	var body = [];
+		console.log('Text Length: ' + texts.length);
+
+  	for (var t in texts) {
+
+		body.push({
+			text: texts[t]
+		});
+
+  	}
+
+	let options = {
+		method: 'POST',
+		baseUrl: BASE_URL,
+		url: 'translate',
+
+		qs: {
+			'api-version': '3.0',
+			'to': language,
+			'textType': 'html'
+		},
+
+		headers: {
+
+			'Ocp-Apim-Subscription-Key': this.apiKey,
+			"Ocp-Apim-Subscription-Region": this.region,
+			'Content-type': 'application/json',
+			'X-ClientTraceId': _uuid().toString()
+
+		},
+		body: body,
+
+		json: true,
+		
+	};
+
+	return _Request.postAsync(options);
 
 };
 
