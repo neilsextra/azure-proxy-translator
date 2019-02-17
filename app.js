@@ -66,7 +66,7 @@ try {
 } catch (e) { 
 }
 
-var cognitiveKey =  process.env.KEY || keys.cognitiveKey;
+var cognitiveKey =  process.env.COGNITIVE_KEY || keys.cognitiveKey;
 var translationUrl =  process.env.TRANSLATION_URL || config.translationUrl;
 var cognitiveRegion =  process.env.COGNITIVE_REGION || config.cognitiveRegion;
 var originalLanguage =  process.env.ORIGINAL_LANGUAGE || config.originalLanguage;
